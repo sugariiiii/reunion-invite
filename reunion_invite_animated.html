@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>同窓会のご案内</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+  :root{
+    --paper:#f2ead9; --paper-deep:#e6dcc4; --ink:#232016; --ink-soft:#5c5644;
+    --seal:#a13c2f; --seal-deep:#7c2c22; --kraft:#b98a4f; --thread:#8d9a6f; --line:rgba(35,32,22,0.14);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;min-height:100vh;
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(185,138,79,0.07), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(161,60,47,0.05), transparent 45%);
+    color:var(--ink);font-family:'Zen Kaku Gothic New',sans-serif;line-height:1.7;
+    overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
+  /* ============ GATE (envelope) ============ */
+  #gate-screen{
+    position:fixed;inset:0;z-index:100;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--paper);
+    transition:opacity 0.7s ease, visibility 0.7s ease;
+  }
+  #gate-screen.dismissed{opacity:0;visibility:hidden;pointer-events:none;}
+
+  .gate-inner{max-width:420px;width:100%;padding:24px;text-align:center;}
+
+  .envelope-stage{
+    position:relative;width:220px;height:150px;margin:0 auto 30px;
+    perspective:800px;
+  }
+  .env-body{
+    position:absolute;inset:0;
+    background:#fdf6ea;border:1px solid var(--thread);border-radius:2px;
+    box-shadow:0 8px 22px rgba(35,32,22,0.12);
+  }
+  .env-flap{
+    position:absolute;top:0;left:0;width:100%;height:75px;
+    background:#f3e6cc;border:1px solid var(--thread);border-top:none;
+    clip-path:polygon(0 0, 100% 0, 50% 100%);
+    transform-origin:top center;
+    transform:rotateX(0deg);
+    transition:transform 0.9s cubic-bezier(.6,-0.2,.35,1.4);
+    z-index:2;
+  }
+  .env-flap.open{transform:rotateX(180deg);}
+  .env-seal{
+    position:absolute;top:52px;left:50%;transform:translateX(-50%);
+    width:40px;height:40px;border-radius:50%;
+    background:var(--seal);color:#fdf6ea;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Shippori Mincho',serif;font-size:17px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.2);
+    z-index:3;transition:opacity 0.4s ease, transform 0.4s ease;
+  }
+  .env-seal.broken{opacity:0;transform:translateX(-50%) scale(0.5);}
+
+  .gate-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.24em;color:var(--kraft);margin-bottom:14px;text-transform:uppercase;}
+  .gate-title{font-family:'Shippori Mincho',serif;font-size:26px;font-weight:700;margin:0 0 10px;}
+  .gate-lead{font-size:13.5px;color:var(--ink-soft);margin:0 0 26px;}
+  .pw-field{
+    width:100%;text-align:center;font-family:'JetBrains Mono',monospace;
+    font-size:19px;letter-spacing:0.3em;padding:14px;
+    border:1px solid var(--line);background:#fffdf7;border-radius:2px;color:var(--ink);
+    margin-bottom:14px;
+  }
+  .pw-field:focus{outline:2px solid var(--seal);outline-offset:1px;}
+  .btn{
+    font-weight:700;font-size:14px;background:var(--seal);color:#fdf6ea;
+    border:none;padding:13px 22px;border-radius:2px;cursor:pointer;width:100%;
+  }
+  .btn:hover{background:var(--seal-deep);}
+  .pw-error{color:var(--seal-deep);font-size:12.5px;margin-top:10px;min-height:16px;}
+
+  /* ============ INVITATION PAGE ============ */
+  #invite-page{visibility:hidden;}
+  #invite-page.revealed{visibility:visible;}
+
+  .visitor-bar{
+    position:sticky;top:0;z-index:10;
+    display:flex;justify-content:center;padding:14px 0;
+    background:rgba(242,234,217,0.9);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .visitor-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    background:#fffdf7;border:1px solid var(--line);padding:7px 16px;border-radius:20px;
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--ink-soft);
+  }
+  .visitor-badge b{color:var(--seal-deep);font-size:15px;}
+
+  .section{max-width:640px;margin:0 auto;padding:70px 24px;}
+  .section.tight{padding-top:40px;}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity 0.8s ease, transform 0.8s ease;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+
+  /* Hero */
+  .hero-section{text-align:center;padding-top:60px;}
+  .hero-ornament{color:var(--kraft);font-size:20px;margin-bottom:14px;}
+  .hero-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.28em;color:var(--kraft);text-transform:uppercase;margin-bottom:18px;}
+  .hero-title{font-family:'Shippori Mincho',serif;font-size:36px;font-weight:700;line-height:1.5;margin:0 0 20px;}
+  .hero-lead{font-size:14px;color:var(--ink-soft);max-width:38ch;margin:0 auto;}
+
+  /* Photo gallery (placeholders) */
+  .gallery-title{font-family:'Shippori Mincho',serif;font-size:20px;text-align:center;margin-bottom:8px;}
+  .gallery-sub{text-align:center;font-size:12.5px;color:var(--ink-soft);margin-bottom:28px;}
+  .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .photo-slot{
+    aspect-ratio:1;border-radius:2px;position:relative;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg, var(--paper-deep), #d9c9a3);
+    border:1px solid var(--line);
+  }
+  .photo-slot span{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--ink-soft);text-align:center;}
+  .photo-slot:nth-child(2){grid-column:span 2;grid-row:span 2;}
+  @media (max-width:480px){
+    .gallery-grid{grid-template-columns:repeat(2,1fr);}
+    .photo-slot:nth-child(2){grid-column:span 2;grid-row:span 1;}
+  }
+
+  /* Messages from core members */
+  .msg-card{
+    background:#fffdf7;border:1px solid var(--line);border-left:3px solid var(--thread);
+    padding:18px 20px;border-radius:2px;margin-bottom:14px;
+  }
+  .msg-card .who{font-family:'Shippori Mincho',serif;font-size:13.5px;color:var(--seal-deep);margin-bottom:6px;}
+  .msg-card .txt{font-size:13.5px;color:var(--ink-soft);}
+
+  /* Detail card */
+  .detail-card{
+    text-align:center;
+    background:linear-gradient(180deg,#fffdf9 0%,#fbf3e9 100%);
+    border:1px solid #e3d3ba;padding:36px 28px;border-radius:3px;position:relative;
+  }
+  .detail-card::before{content:"";position:absolute;inset:8px;border:1px solid #d8c19a;pointer-events:none;}
+  .detail-card .cap{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.24em;color:var(--kraft);margin-bottom:16px;text-transform:uppercase;}
+  .detail-card .line{font-family:'Shippori Mincho',serif;font-size:17px;margin-bottom:6px;}
+
+  .footer-note{text-align:center;font-size:11.5px;color:var(--ink-soft);padding:40px 24px 60px;}
+</style>
+</head>
+<body>
+
+  <!-- ============ GATE ============ -->
+  <div id="gate-screen">
+    <div class="gate-inner">
+      <div class="envelope-stage">
+        <div class="env-body"></div>
+        <div class="env-seal" id="env-seal">封</div>
+        <div class="env-flap" id="env-flap"></div>
+      </div>
+      <div class="gate-eyebrow">Members Only Reunion</div>
+      <h1 class="gate-title">同窓会のご案内</h1>
+      <p class="gate-lead">合言葉をご存知の方だけがこの先へ進めます。</p>
+      <input type="text" id="pw-input" class="pw-field" placeholder="合言葉" autocomplete="off">
+      <button class="btn" onclick="checkPassword()">封を開ける</button>
+      <div class="pw-error" id="pw-error"></div>
+    </div>
+  </div>
+
+  <!-- ============ INVITATION ============ -->
+  <div id="invite-page">
+
+    <div class="visitor-bar">
+      <div class="visitor-badge">👀 あなたは <b id="visitor-number">…</b> 人目の訪問者です</div>
+    </div>
+
+    <div class="section hero-section reveal visible">
+      <div class="hero-ornament">✦</div>
+      <div class="hero-eyebrow">Reunion Invitation</div>
+      <h1 class="hero-title">あの頃の仲間が、<br>また集まります。</h1>
+      <p class="hero-lead">かつて共に学び、支え合った時間を懐かしんで。運営メンバーとして関わった顔ぶれも交え、あらためて顔を合わせる会を開きます。</p>
+    </div>
+
+    <div class="section reveal" id="sec-gallery">
+      <div class="gallery-title">あの頃の記録</div>
+      <div class="gallery-sub">※ ここに実際の写真を差し替えてください（下のコードの photo-slot 部分）</div>
+      <div class="gallery-grid">
+        <div class="photo-slot"><span>Photo 1</span></div>
+        <div class="photo-slot"><span>Photo 2<br>（大きめ推奨）</span></div>
+        <div class="photo-slot"><span>Photo 3</span></div>
+        <div class="photo-slot"><span>Photo 4</span></div>
+        <div class="photo-slot"><span>Photo 5</span></div>
+      </div>
+    </div>
+
+    <div class="section reveal" id="sec-messages">
+      <div class="gallery-title">運営メンバーより</div>
+      <div class="gallery-sub">一言メッセージ（仮の文面です）</div>
+      <div class="msg-card">
+        <div class="who">コアメンバー A</div>
+        <div class="txt">あの頃の熱量そのままに、また同じ部屋で顔を合わせられることを楽しみにしています。</div>
+      </div>
+      <div class="msg-card">
+        <div class="who">コアメンバー B</div>
+        <div class="txt">解散してからの近況も、ゆっくり聞かせてください。会場でお待ちしています。</div>
+      </div>
+    </div>
+
+    <div class="section reveal" id="sec-detail">
+      <div class="detail-card">
+        <div class="cap">Date &amp; Venue</div>
+        <div class="line">2026年 ◯月 ◯日（◯）</div>
+        <div class="line">◯◯◯◯（会場名）</div>
+      </div>
+    </div>
+
+    <p class="footer-note">この招待は限られた方にのみお届けしています。合言葉とあわせて、次に会いたい方へそっと回してください。</p>
+
+  </div>
+
+<script>
+  // ここに合言葉を設定してください（大文字小文字は区別しません）
+  const PASSWORD = "REUNION2026";
+
+  // 訪問者カウンター用の名前空間（他のサイトと被らないよう、なるべく固有の文字列にしてください）
+  const COUNTER_NAMESPACE = "richan-coaching-reunion-2026";
+  const COUNTER_KEY = "visitors";
+
+  function checkPassword(){
+    const input = document.getElementById('pw-input').value.trim();
+    const errorEl = document.getElementById('pw-error');
+
+    if(input.toUpperCase() === PASSWORD.toUpperCase()){
+      errorEl.textContent = '';
+      playOpenSequence();
+    } else {
+      errorEl.textContent = '合言葉が正しくありません。';
+    }
+  }
+
+  document.getElementById('pw-input').addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') checkPassword();
+  });
+
+  function playOpenSequence(){
+    document.getElementById('env-seal').classList.add('broken');
+    document.getElementById('env-flap').classList.add('open');
+
+    setTimeout(()=>{
+      document.getElementById('gate-screen').classList.add('dismissed');
+      document.getElementById('invite-page').classList.add('revealed');
+      document.body.style.overflow = 'auto';
+      incrementVisitorCount();
+      initScrollReveal();
+    }, 750);
+  }
+
+  async function incrementVisitorCount(){
+    const badge = document.getElementById('visitor-number');
+    try{
+      const res = await fetch(`https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`);
+      const data = await res.json();
+      badge.textContent = data.value;
+    }catch(err){
+      badge.textContent = '?';
+    }
+  }
+
+  function initScrollReveal(){
+    const targets = document.querySelectorAll('.reveal:not(.visible)');
+    const observer = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    targets.forEach(t => observer.observe(t));
+  }
+
+  // Lock scroll while gate is showing
+  document.body.style.overflow = 'hidden';
+</script>
+</body>
+</html>
