@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>同窓会のご案内</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+  :root{
+    --paper:#f2ead9; --paper-deep:#e6dcc4; --ink:#232016; --ink-soft:#5c5644;
+    --seal:#a13c2f; --seal-deep:#7c2c22; --kraft:#b98a4f; --thread:#8d9a6f; --line:rgba(35,32,22,0.14);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;min-height:100vh;
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(185,138,79,0.07), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(161,60,47,0.05), transparent 45%);
+    color:var(--ink);font-family:'Zen Kaku Gothic New',sans-serif;line-height:1.7;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .wrap{max-width:480px;width:100%;padding:24px;}
+
+  /* GATE */
+  #gate-view{text-align:center;}
+  .gate-ornament{font-size:22px;color:var(--kraft);margin-bottom:18px;}
+  .gate-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.24em;color:var(--kraft);margin-bottom:14px;text-transform:uppercase;}
+  .gate-title{font-family:'Shippori Mincho',serif;font-size:28px;font-weight:700;margin:0 0 12px;}
+  .gate-lead{font-size:13.5px;color:var(--ink-soft);margin:0 0 32px;}
+  .pw-field{
+    width:100%;text-align:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:20px;letter-spacing:0.3em;
+    padding:14px;border:1px solid var(--line);
+    background:#fffdf7;border-radius:2px;color:var(--ink);
+    margin-bottom:14px;
+  }
+  .pw-field:focus{outline:2px solid var(--seal);outline-offset:1px;}
+  .btn{
+    font-weight:700;font-size:14px;background:var(--seal);color:#fdf6ea;
+    border:none;padding:13px 22px;border-radius:2px;cursor:pointer;width:100%;
+  }
+  .btn:hover{background:var(--seal-deep);}
+  .pw-error{color:var(--seal-deep);font-size:12.5px;margin-top:10px;min-height:16px;}
+
+  /* INVITATION */
+  #invite-view{display:none;}
+  .visitor-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--paper-deep);border:1px solid var(--line);
+    padding:8px 16px;border-radius:20px;
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--ink-soft);
+    margin-bottom:24px;
+  }
+  .visitor-badge b{color:var(--seal-deep);font-size:15px;}
+
+  .invite-card{
+    text-align:center;
+    background:linear-gradient(180deg,#fffdf9 0%,#fbf3e9 100%);
+    border:1px solid #e3d3ba;padding:40px 28px 32px;border-radius:3px;position:relative;
+  }
+  .invite-card::before{content:"";position:absolute;inset:8px;border:1px solid #d8c19a;pointer-events:none;}
+  .invite-ornament{color:var(--kraft);font-size:18px;margin-bottom:10px;}
+  .invite-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.28em;color:var(--kraft);margin-bottom:18px;}
+  .invite-title{font-family:'Shippori Mincho',serif;font-size:26px;font-weight:700;margin-bottom:14px;line-height:1.5;}
+  .invite-body{font-size:13.5px;color:var(--ink-soft);line-height:2;max-width:36ch;margin:0 auto 20px;}
+  .invite-detail{font-family:'Shippori Mincho',serif;font-size:14px;border-top:1px solid #d8c19a;padding-top:16px;display:inline-block;}
+  .invite-detail div{margin-bottom:4px;}
+
+  .footer-note{text-align:center;font-size:11.5px;color:var(--ink-soft);margin-top:20px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- PASSWORD GATE -->
+  <div id="gate-view">
+    <div class="gate-ornament">✦</div>
+    <div class="gate-eyebrow">Members Only Reunion</div>
+    <h1 class="gate-title">同窓会のご案内</h1>
+    <p class="gate-lead">合言葉をご存知の方だけがこの先へ進めます。</p>
+    <input type="text" id="pw-input" class="pw-field" placeholder="合言葉" autocomplete="off">
+    <button class="btn" onclick="checkPassword()">開く</button>
+    <div class="pw-error" id="pw-error"></div>
+  </div>
+
+  <!-- INVITATION (revealed after correct password) -->
+  <div id="invite-view">
+    <div style="text-align:center;">
+      <div class="visitor-badge">👀 あなたは <b id="visitor-number">…</b> 人目の訪問者です</div>
+    </div>
+
+    <div class="invite-card">
+      <div class="invite-ornament">✦</div>
+      <div class="invite-eyebrow">REUNION INVITATION</div>
+      <div class="invite-title">あの頃の仲間が、<br>また集まります。</div>
+      <div class="invite-body">
+        かつて共に学び、支え合った時間を懐かしんで。<br>
+        今回は運営メンバーとして関わった顔ぶれも交え、<br>
+        あらためて顔を合わせる会を開きます。
+      </div>
+      <div class="invite-detail">
+        <div>2026年 ◯月 ◯日（◯）</div>
+        <div>◯◯◯◯（会場）</div>
+      </div>
+    </div>
+
+    <p class="footer-note">この招待は限られた方にのみお届けしています。合言葉とあわせて、次に会いたい方へそっと回してください。</p>
+  </div>
+
+</div>
+
+<script>
+  // ここに合言葉を設定してください（大文字小文字は区別しません）
+  const PASSWORD = "REUNION2026";
+
+  // 訪問者カウンター用の名前空間（他のサイトと被らないよう、なるべく固有の文字列にしてください）
+  const COUNTER_NAMESPACE = "richan-coaching-reunion-2026";
+  const COUNTER_KEY = "visitors";
+
+  function checkPassword(){
+    const input = document.getElementById('pw-input').value.trim();
+    const errorEl = document.getElementById('pw-error');
+
+    if(input.toUpperCase() === PASSWORD.toUpperCase()){
+      document.getElementById('gate-view').style.display = 'none';
+      document.getElementById('invite-view').style.display = 'block';
+      incrementVisitorCount();
+    } else {
+      errorEl.textContent = '合言葉が正しくありません。';
+    }
+  }
+
+  document.getElementById('pw-input').addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') checkPassword();
+  });
+
+  async function incrementVisitorCount(){
+    const badge = document.getElementById('visitor-number');
+    try{
+      const res = await fetch(`https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`);
+      const data = await res.json();
+      badge.textContent = data.value;
+    }catch(err){
+      badge.textContent = '?';
+    }
+  }
+</script>
+</body>
+</html>
